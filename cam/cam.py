@@ -19,15 +19,14 @@ import numpy as np
 import glob
 
 
-def train_added_layers(loader):
+def train_added_layers(model, loader, num_epochs):
     trainable_parameters = []
     for name, p in model.named_parameters():
         if "fc" in name:
             trainable_parameters.append(p)
     optimizer = torch.optim.SGD(params=trainable_parameters, lr=0.1, momentum=1e-5)
     criterion = nn.CrossEntropyLoss()
-    train_loader = loader.generate_loader(batch_size)
-    total_step = len(train_loader)
+    total_step = len(loader)
     loss_list = []
     acc_list = []
 
@@ -72,8 +71,8 @@ def return_CAM(feature_conv, weight, class_idx):
 
 if __name__ == '__main__':
     class_num = 2
-    batch_size = 4
-    num_epochs = 100
+    batch_size = 8
+    num_epochs = 1
     IMG_URL = "/Users/alinatamkevich/images/cats"
     normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406],
@@ -87,6 +86,7 @@ if __name__ == '__main__':
 
     train_loader = loader.generate_loader(batch_size)
     mod, model = model.build_model(class_num)
+    train_added_layers(model, train_loader, num_epochs)
     params = list(model.parameters())
     weight = np.squeeze(params[-2].data.numpy())
 
